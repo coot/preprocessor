@@ -42,29 +42,29 @@ import Language.C.Preprocessor.Remover.Internal.Types      (CabalFilePath,
                                                            ProjectDir,
                                                            emptyCppOptions)
 
-import Control.Monad                         (filterM, (>=>))
-import Data.List                             (inits, isSuffixOf)
-import Data.Maybe                            (catMaybes)
-import Data.Monoid                           ((<>))
-import Distribution.ModuleName               (toFilePath)
-import Distribution.PackageDescription       (condLibrary, condTreeData,
-                                             exposedModules, hsSourceDirs,
-                                             libBuildInfo)
-import Distribution.PackageDescription.Parse (readPackageDescription)
-import Distribution.Verbosity                (silent)
-import System.Directory                      (findFile, makeAbsolute)
-import System.Directory.Extra                (listContents)
-import System.FilePath.Find                  (always, extension, fileName, find,
-                                             (&&?), (/=?), (==?))
-import System.FilePath.Posix                 (joinPath, splitPath,
-                                             takeDirectory, (</>))
-import System.Process                        (readCreateProcess, shell)
+import Control.Monad                          (filterM, (>=>))
+import Data.List                              (inits, isSuffixOf)
+import Data.Maybe                             (catMaybes)
+import Data.Monoid                            ((<>))
+import Distribution.ModuleName                (toFilePath)
+import Distribution.PackageDescription        (condLibrary, condTreeData,
+                                              exposedModules, hsSourceDirs,
+                                              libBuildInfo)
+import Distribution.PackageDescription.Parsec (readGenericPackageDescription)
+import Distribution.Verbosity                 (silent)
+import System.Directory                       (findFile, makeAbsolute)
+import System.Directory.Extra                 (listContents)
+import System.FilePath.Find                   (always, extension, fileName, find,
+                                              (&&?), (/=?), (==?))
+import System.FilePath.Posix                  (joinPath, splitPath,
+                                              takeDirectory, (</>))
+import System.Process                         (readCreateProcess, shell)
 
 -- | Given the path to the cabal file, this returns the paths to all the exposed
 -- modules of the @library@ section.
 getLibExposedModulesPath :: CabalFilePath -> IO [FilePath]
 getLibExposedModulesPath cabalPath = do
-  packageDesc <- readPackageDescription silent cabalPath
+  packageDesc <- readGenericPackageDescription silent cabalPath
   let Just lib = condTreeData <$> condLibrary packageDesc
       modules = map (++ ".hs") . map toFilePath . exposedModules $ lib
       sourceDirs =
